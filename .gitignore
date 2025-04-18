@@ -3,6 +3,6 @@
 /__pycache__/
 dist
 main.spec
-民法典小助手.spec
+*.spec
 __pycache__/.*
 build

@@ -10,7 +10,7 @@ class App:
     def __init__(self, root):
         # GUI
         self.root = root
-        root.title("中国民法典个人小助手")
+        root.title("中国民法典个人小助手[作者：wanglin20130410@126.com]")
 
         # 设置初始窗口尺寸
         root.geometry("800x600")  # 新增：初始窗口大小
