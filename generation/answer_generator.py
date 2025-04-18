@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()  # 加载 .env 文件
 
 api_key = os.getenv("API_KEY")
-client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
 LAW_PROMPT = """
 你是一个法律助手，请严格根据以下法律条文回答问题：
@@ -20,17 +19,22 @@ LAW_PROMPT = """
 3. 如果问题与法律无关，回答“暂不提供非法律咨询”
 """
 
+class Generator:
 
-def generate_legal_answer(query, context):
-    context_str = "\n".join([f"第{art['article_number']}条：{art['content']}" for art in context])
-    prompt = LAW_PROMPT.format(context=context_str, question=query)
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
-    response = client.chat.completions.create(
-        model="deepseek-reasoner",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2  # 低随机性保证准确性
-    )
-    return response.choices[0].message.content
+    def generate_legal_answer(self, query, context):
+        context_str = "\n".join([f"第{art['article_number']}条：{art['content']}" for art in context])
+        prompt = LAW_PROMPT.format(context=context_str, question=query)
+
+        response = self.client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2  # 低随机性保证准确性
+        )
+        return response.choices[0].message.content
 
 
 if __name__ == "__main__":
@@ -41,4 +45,5 @@ if __name__ == "__main__":
         {'article_number': '一千零六十九', 'content': '子女应当尊重父母的婚姻权利,不得干涉父母离婚、再婚以及婚后的生活。子女对父母的赡养义务,不因父母的婚姻关系变化而终止。'},
         {'article_number': '一十零七十八', 'content': '婚姻登记机关查明双方确实是自愿离婚,苜已经对子女抚养、财产以及债务处理等事项协商一致的,予以登记,发给离婚证。'}
     ]
-    print(generate_legal_answer("离婚后孩子归谁？", sample_context))
+    generator = Generator(api_key)
+    print(generator.generate_legal_answer("离婚后孩子归谁？", sample_context))
