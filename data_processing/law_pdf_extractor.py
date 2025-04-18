@@ -2,13 +2,14 @@ import json
 import re
 from pdf2image import convert_from_path
 import pytesseract
+from config import Config
+
 
 # 1. OCR 提取 PDF 文本
 def extract_text_from_pdf(pdf_path):
-    images = convert_from_path(pdf_path, dpi=300, poppler_path='F:\\wanglin\\poppler-24.08.0\\Library\\bin', first_page=9, last_page=13)
+    images = convert_from_path(pdf_path, dpi=300, first_page=8, last_page=222)
     full_text = ""
     for image in images:
-        pytesseract.pytesseract.tesseract_cmd = r"F:\tesseractocr\tesseract.exe"
         full_text += pytesseract.image_to_string(image, lang='chi_sim') + "\n"
     return full_text.replace(" " , "")
 
@@ -46,12 +47,13 @@ def parse_structure(text):
     return data
 
 # 3. 主流程执行
-pdf_path = "../test_data/civil_code.pdf"
+pdf_path = Config.DATA_PATHS["raw_pdf"]
 text = extract_text_from_pdf(pdf_path)
 structured_data = parse_structure(text)
 
 # 4. 导出 JSON
-with open("civil_code.json", "w", encoding="utf-8") as f:
+structured_json = Config.DATA_PATHS["structured_json"]
+with open(structured_json, "w", encoding="utf-8") as f:
     json.dump(structured_data, f, ensure_ascii=False, indent=2)
 
 print("已成功提取并保存为 civil_code.json")
